@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:17
+    environment:  
+      POSTGRES_DB: ${POSTGRES_DB:-projeto}
+      POSTGRES_USER: ${POSTGRES_USER:-projeto}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-projeto}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  api:
+    image: pedroabd/apicloud:latest
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-projeto}:${POSTGRES_PASSWORD:-projeto}@db:5432/${POSTGRES_DB:-projeto}
+      - SECRET_KEY=${SECRET_KEY:-default_secret_key}
+      - ALGORITHM=${ALGORITHM:-HS256}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
+    depends_on:
+      - db
+    networks:
+      - app-network
+    volumes:
+      - ./app:/app
+
+volumes:
+  postgres_data:
+
+networks:
+  app-network:

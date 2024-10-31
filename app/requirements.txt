@@ -1,0 +1,9 @@
+argon2-cffi
+fastapi
+lxml
+psycopg2-binary
+python-jose
+python-multipart
+sqlalchemy
+uvicorn
+yfinance
