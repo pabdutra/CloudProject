@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-deployment
+  labels:
+    app: api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+      - name: api
+        image: pedroabd/apicloud:latest
+        ports:
+        - containerPort: 8000
+        env:
+        # Prioridade: Secret, ConfigMap e valores fixos (fallback)
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: api-secrets
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: api-secrets
+              key: POSTGRES_PASSWORD
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: api-secrets
+              key: POSTGRES_DB
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: api-secrets
+              key: SECRET_KEY
+
+        # Valores genéricos (fallback) diretamente do ConfigMap
+        - name: DATABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: api-config
+              key: DATABASE_URL
+        - name: ALGORITHM
+          valueFrom:
+            configMapKeyRef:
+              name: api-config
+              key: ALGORITHM
+        - name: ACCESS_TOKEN_EXPIRE_MINUTES
+          valueFrom:
+            configMapKeyRef:
+              name: api-config
+              key: ACCESS_TOKEN_EXPIRE_MINUTES
+        - name: SECRET_KEY_DEFAULT
+          valueFrom:
+            configMapKeyRef:
+              name: api-config
+              key: SECRET_KEY_DEFAULT

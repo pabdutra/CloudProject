@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-deployment
+  labels:
+    app: db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      containers:
+      - name: db
+        image: postgres:17
+        ports:
+        - containerPort: 5432
+        env:
+        # Valores sensíveis buscados no Secret, com fallback para ConfigMap
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: api-secrets
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: api-secrets
+              key: POSTGRES_PASSWORD
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: api-secrets
+              key: POSTGRES_DB
+        # Valores genéricos (fallback) diretamente do ConfigMap
+        - name: POSTGRES_USER
+          valueFrom:
+            configMapKeyRef:
+              name: api-config
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: api-config
+              key: POSTGRES_PASSWORD
+        - name: POSTGRES_DB
+          valueFrom:
+            configMapKeyRef:
+              name: api-config
+              key: POSTGRES_DB
